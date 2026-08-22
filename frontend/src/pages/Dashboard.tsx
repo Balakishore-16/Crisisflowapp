@@ -86,6 +86,7 @@ export default function Dashboard() {
     const [recommendation, setRecommendation] = useState<Recommendation | null>(null);
     const [simulating, setSimulating] = useState('');
     const [dispatching, setDispatching] = useState(false);
+    const [adminCity, setAdminCity] = useState<string>('Locating Region...');
 
     const loadData = useCallback(async () => {
         try {
@@ -104,6 +105,25 @@ export default function Dashboard() {
     }, []);
 
     useEffect(() => { loadData(); }, [loadData]);
+
+    // Admin Geolocation Label
+    useEffect(() => {
+        if ('geolocation' in navigator) {
+            navigator.geolocation.getCurrentPosition(
+                async (pos) => {
+                    try {
+                        const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${pos.coords.latitude}&lon=${pos.coords.longitude}`);
+                        const data = await res.json();
+                        setAdminCity(data.address?.city || data.address?.town || data.address?.county || 'Active Region');
+                    } catch { }
+                },
+                () => setAdminCity('Global View'),
+                { enableHighAccuracy: false, maximumAge: 60000 }
+            );
+        } else {
+            setAdminCity('Global View');
+        }
+    }, []);
 
     // WebSocket
     const onWsEvent = useCallback((evt: WSEvent) => {
@@ -239,7 +259,7 @@ export default function Dashboard() {
                         <MapPin size={14} className="text-crisis-blue" />
                         <span className="text-sm font-semibold text-white">Live Emergency Map</span>
                         <div className="ml-auto flex items-center gap-2">
-                            <span className="text-xs text-slate-500">Hyderabad Metro</span>
+                            <span className="text-xs text-slate-500 font-semibold">{adminCity}</span>
                             <button onClick={locateMe} className="p-1 hover:bg-slate-200 rounded text-slate-500 hover:text-crisis-blue transition-colors" title="Locate Me">
                                 <Target size={16} />
                             </button>
