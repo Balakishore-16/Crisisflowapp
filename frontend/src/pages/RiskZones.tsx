@@ -69,7 +69,7 @@ export default function RiskZones() {
                     <span className="text-sm font-semibold text-white">Risk Zone Map</span>
                 </div>
                 <MapContainer center={[17.420, 78.450]} zoom={12}
-                    style={{ height: 'calc(100% - 44px)', width: '100%' }} zoomControl={false}>
+                    style={{ height: 'calc(100% - 44px)', width: '100%', zIndex: 10 }} zoomControl={false} scrollWheelZoom={false}>
                     <TileLayer url="https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}"
                         attribution='&copy; Google Maps' />
                     <MapController />
