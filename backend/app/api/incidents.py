@@ -150,7 +150,14 @@ async def dispatch_response(incident_id: str, db: Session = Depends(get_db)):
            .order_by(Recommendation.created_at.desc())
            .first())
     if not rec:
-        raise HTTPException(400, "No recommendation — analyze the incident first")
+        # Auto-analyze if frontend skips the Admin panel!
+        await analyze_incident(db, inc)
+        rec = (db.query(Recommendation)
+               .filter(Recommendation.incident_id == incident_id)
+               .order_by(Recommendation.created_at.desc())
+               .first())
+        if not rec:
+            raise HTTPException(400, "Failed to auto-generate routing recommendation.")
 
     # Create dispatch
     dispatch_id = f"DSP-{random.randint(1000,9999)}"
