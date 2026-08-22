@@ -30,8 +30,16 @@ export const analyzeIncident = (id: string) =>
     request<any>(`/incidents/${id}/analyze`, { method: 'POST' });
 export const getRecommendation = (id: string) =>
     request<any>(`/incidents/${id}/recommendation`);
-export const dispatchResponse = (id: string) =>
-    request<any>(`/incidents/${id}/dispatch`, { method: 'POST' });
+export const dispatchResponse = (id: string, data?: any) =>
+    request<any>(`/incidents/${id}/dispatch`, { method: 'POST', body: data ? JSON.stringify(data) : undefined });
+export const bulkAcknowledge = (incident_ids: string[]) =>
+    request<any>('/incidents/bulk/acknowledge', { method: 'POST', body: JSON.stringify({ incident_ids }) });
+export const bulkDispatch = (incident_ids: string[]) =>
+    request<any>('/incidents/bulk/dispatch', { method: 'POST', body: JSON.stringify({ incident_ids }) });
+export const getIncidentTimeline = (id: string) =>
+    request<any[]>(`/incidents/${id}/timeline`);
+export const fetchRoute = (origin_lat: number, origin_lon: number, dest_lat: number, dest_lon: number) =>
+    request<any>(`/external/route?origin_lat=${origin_lat}&origin_lon=${origin_lon}&dest_lat=${dest_lat}&dest_lon=${dest_lon}`);
 
 // Simulation
 export const simulateFire = () => request<any>('/simulate/fire', { method: 'POST' });

@@ -1,9 +1,9 @@
 /* ─── Analytics Page ─── */
 import { useState, useEffect } from 'react';
-import { BarChart3, TrendingUp, Activity } from 'lucide-react';
+import { BarChart3 } from 'lucide-react';
 import {
     BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-    PieChart, Pie, Cell, AreaChart, Area, Legend,
+    PieChart, Pie, Cell, Legend,
 } from 'recharts';
 import { getAnalytics } from '../services/api';
 import type { Analytics } from '../types';
@@ -125,7 +125,7 @@ export default function AnalyticsPage() {
                             <XAxis type="number" domain={[0, 100]} tick={{ fontSize: 10, fill: '#94a3b8' }} />
                             <YAxis dataKey="name" type="category" tick={{ fontSize: 11, fill: '#94a3b8' }} width={100} />
                             <Tooltip contentStyle={{ background: '#131a2e', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, fontSize: 12 }}
-                                formatter={(v: number) => [`${v}%`, 'Utilization']} />
+                                formatter={(v: any) => [`${v}%`, 'Utilization']} />
                             <Bar dataKey="utilization" fill="#a855f7" radius={[0, 4, 4, 0]} />
                         </BarChart>
                     </ResponsiveContainer>

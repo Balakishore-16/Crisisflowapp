@@ -4,6 +4,7 @@ export interface Incident {
     id: string;
     incident_type: string;
     location: string;
+    zone?: string;
     latitude: number;
     longitude: number;
     floor?: number | null;
@@ -13,9 +14,29 @@ export interface Incident {
     description?: string | null;
     status: string;
     spread_risk?: string | null;
+    is_duplicate?: boolean;
+    duplicate_of_id?: string | null;
     created_at?: string;
     updated_at?: string;
     is_simulated?: boolean;
+}
+
+export interface BulkOperationResponse {
+    successful: string[];
+    failed: string[];
+    errors: Record<string, string>;
+    message: string;
+}
+
+export interface TimelineEvent {
+    id: string;
+    incident_id: string;
+    event_type: string;
+    title: string;
+    description: string;
+    severity: string;
+    icon: string;
+    timestamp: string;
 }
 
 export interface Ambulance {
@@ -89,6 +110,7 @@ export interface Recommendation {
     hospital_name?: string;
     route?: string;
     eta_minutes?: number;
+    score?: number;
     confidence?: number;
     reasons: string[];
     explanation?: string;

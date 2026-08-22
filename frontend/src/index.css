@@ -1,5 +1,38 @@
 @import "tailwindcss";
-@import "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";
+
+.leaflet-container {
+  height: 100%;
+  width: 100%;
+  min-height: 250px;
+  z-index: 0;
+}
+
+.smooth-marker-move {
+  transition: transform 0.8s ease-out;
+}
+
+.custom-leaflet-marker {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.marker-cluster-small,
+.marker-cluster-medium,
+.marker-cluster-large {
+  background-color: rgba(2, 132, 199, 0.25) !important;
+  border-radius: 50%;
+}
+
+.marker-cluster div {
+  background-color: rgba(2, 132, 199, 0.95) !important;
+  color: #ffffff !important;
+  font-weight: 700;
+  font-family: system-ui, sans-serif;
+  font-size: 13px;
+  border: 2px solid #ffffff;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.3);
+}
 
 @theme {
   --font-sans: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;

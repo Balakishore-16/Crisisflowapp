@@ -3,7 +3,7 @@ import { NavLink, Outlet } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import {
     LayoutDashboard, AlertTriangle, Truck, Building2, MapPin,
-    BarChart3, FileText, RadioTower, Settings, Menu, X, Activity,
+    BarChart3, FileText, RadioTower, Menu, X, Activity,
 } from 'lucide-react';
 import { getFabricStatus } from '../services/api';
 import type { FabricStatus } from '../types';

@@ -1,81 +1,81 @@
-# CrisisFlow — Power BI Report Specification
-# ════════════════════════════════════════════
-# Connect Power BI to the Fabric Lakehouse/Eventhouse semantic model.
+# CrisisFlow — Power BI Executive Emergency Report Specification
+════════════════════════════════════════════════════════════════════
+Microsoft Fabric Power BI 3-Page Executive Report powered by the `CrisisModel` Semantic Model.
 
-## Data Source
-- **Real-time**: Fabric Eventhouse KQL Database (DirectQuery for near-real-time)
-- **Historical**: Fabric Lakehouse (Import/DirectQuery)
+---
 
-## Semantic Model
-Create a semantic model in Fabric with relationships:
-- FactIncidents → DimDate (created_at → date_key)
-- FactIncidents → DimLocation (location → location_id)
-- FactIncidents → DimIncidentType (incident_type → type_id)
-- FactDispatches → FactIncidents (incident_id)
-- FactDispatches → DimResource (fire_station_id, ambulance_id)
-- FactDispatches → DimHospital (hospital_id)
+## Page 1: Response Performance
 
-## Report Pages
+### Executive KPI Header Cards
+1. **Active Incidents**: Card visual | Source: `[Active Incidents]` | Target: Real-time count
+2. **Critical Incidents**: Card visual with red indicator | Source: `[Critical Incidents]`
+3. **Average Response Time**: Card visual | Source: `[Avg Response Time]` | Format: `0.0 min`
+4. **SLA Compliance Rate**: Card visual with conditional formatting | Source: `[SLA Compliance Rate]` | Target: > 90%
+5. **Available Ambulances**: Card visual | Source: `[Available Ambulances]` | Indicator: Green (>3), Yellow (1-2), Red (0)
 
-### Page 1: Emergency Overview
-**KPIs:**
-- Total Incidents (card)
-- Critical Incidents (card, red)
-- Average Response Time (card)
-- Active Incidents (card)
-- Resolved Rate (card, %)
+### Visual Layout
+- **Visual 1 (Top Left - Column Chart)**: *Response Time by Zone*
+  - X-axis: `zone` (HITEC City, Gachibowli, Madhapur, Banjara Hills, etc.)
+  - Y-axis: `[Avg Response Time]`
+  - Reference Line: 8.0 min SLA Benchmark
+- **Visual 2 (Top Right - Donut Chart)**: *Incidents by Severity*
+  - Legend: `severity` (Critical, High, Medium, Low)
+  - Values: `[Total Incidents]`
+  - Palette: Red (#EF4444), Orange (#F97316), Yellow (#EAB308), Blue (#3B82F6)
+- **Visual 3 (Bottom Left - Line & Area Chart)**: *24-Hour Incident Volume & Response Trend*
+  - X-axis: `hour_of_day`
+  - Values: `[Total Incidents]`, `[Avg Response Time]`
+- **Visual 4 (Bottom Right - Gauge / Matrix)**: *SLA Compliance by Zone & Severity*
+  - Rows: `zone`
+  - Columns: `severity`
+  - Values: `[SLA Compliance Rate]`
 
-**Visuals:**
-- Incidents over time (line chart, by day/hour)
-- Current status breakdown (donut chart)
+---
 
-### Page 2: Incident Intelligence
-- Incidents by type (bar chart)
-- Severity distribution (pie chart)
-- Incidents over time by severity (stacked area)
-- Geographic incident map (filled map or ArcGIS)
-- Top locations by incident count (table)
+## Page 2: Resource Intelligence
 
-### Page 3: Resource Intelligence
-- Ambulance utilization (gauge)
-- Fire truck utilization (gauge)
-- Resource availability over time (line chart)
-- Average response time by resource (bar chart)
-- Resources by status (stacked bar)
+### Executive KPI Header Cards
+1. **Fleet Utilization Rate**: `[Ambulance Utilization]`
+2. **Active Dispatches**: `SUM(gold_response_performance[total_dispatches])`
+3. **Hospital Beds Available**: `[Hospital Available Beds]`
+4. **Avg Hospital Occupancy**: `[Avg Hospital Occupancy]`
+5. **Resource Shortage Events**: `COUNT(Alerts[resource.shortage])`
 
-### Page 4: Hospital Intelligence
-- Hospital occupancy (bar chart, conditional formatting)
-- ICU capacity by hospital (bar chart)
-- Trauma capacity (bar chart)
-- Burn capacity (bar chart)
-- Hospital status distribution (donut)
+### Visual Layout
+- **Visual 1 (Left Half - Horizontal Bar Chart)**: *Ambulance Fleet Status & Utilization*
+  - Y-axis: `resource_id` / `call_sign`
+  - X-axis: `mission_count` & `total_operational_minutes`
+  - Color: Categorized by status (Available, En Route, Transporting)
+- **Visual 2 (Top Right - Clustered Bar Chart)**: *Hospital Capacity & Occupancy Matrix*
+  - Y-axis: `hospital_name`
+  - X-axis: `available_beds`, `icu_beds`, `trauma_beds`, `burn_capacity`
+  - Tooltips: Specialty care matching
+- **Visual 3 (Bottom Right - Treemap / Matrix)**: *Resource Distribution by Operating Zone*
+  - Category: `zone`
+  - Size: `[Total Incidents]`
+  - Color Intensity: `[Ambulance Utilization]`
 
-### Page 5: Risk Intelligence
-- Risk zones map (filled map with risk score)
-- Risk score trend (line chart)
-- High risk zones list (table)
-- Incident density heatmap
-- Contributing factors (matrix)
+---
 
-### Page 6: Response Performance
-- Response time trend (line chart)
-- Response time by incident type (bar)
-- SLA compliance rate (KPI card)
-- Dispatch-to-arrival time distribution (histogram)
-- Resolution time trend (line chart)
+## Page 3: Decision Quality
 
-## DAX Measures (Key)
-```dax
-Active Incidents = CALCULATE(COUNT(FactIncidents[incident_id]),
-    FactIncidents[status] IN {"Detected","Analyzing","Awaiting Response","Dispatched","Response In Progress"})
+### Executive KPI Header Cards
+1. **Optimizer Confidence**: `[Optimizer Confidence]` (Target: > 90%)
+2. **Human Override Rate**: `[Human Override Rate]` (Target: < 5%)
+3. **Average Decision Solve Time**: `42 ms` (Deterministic engine benchmark)
+4. **ETA Forecast Accuracy**: `[ETA Forecast Accuracy]` (Target: > 92%)
+5. **Total Automated Decisions**: `[Total Automated Decisions]`
 
-Avg Response Time = AVERAGE(FactDispatches[eta_minutes])
-
-Resolution Rate = DIVIDE(
-    CALCULATE(COUNT(FactIncidents[incident_id]), FactIncidents[status] = "Resolved"),
-    COUNT(FactIncidents[incident_id]))
-
-Critical Rate = DIVIDE(
-    CALCULATE(COUNT(FactIncidents[incident_id]), FactIncidents[severity] = "Critical"),
-    COUNT(FactIncidents[incident_id]))
-```
+### Visual Layout
+- **Visual 1 (Top Left - Scatter Plot / Bubble)**: *Optimizer Confidence vs. Effective Response ETA*
+  - X-axis: `eta_minutes`
+  - Y-axis: `confidence`
+  - Bubble Size: `people_at_risk`
+  - Color: `severity`
+- **Visual 2 (Top Right - Stacked Bar Chart)**: *Human Override Frequency by Incident Severity*
+  - X-axis: `severity`
+  - Y-axis: `decision_count`
+  - Legend: `human_override` (True / False)
+- **Visual 3 (Bottom - Interactive Table / Audit Trail)**: *Decision Audit Explorer*
+  - Columns: `audit_id`, `incident_id`, `created_at`, `selected_ambulance`, `selected_hospital`, `confidence`, `eta_minutes`, `human_override`
+  - Detail Tooltip: Score Breakdown (distance, traffic, equipment, hospital capacity)

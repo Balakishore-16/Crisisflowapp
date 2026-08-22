@@ -1,6 +1,5 @@
-/* ─── Resources Page ─── */
 import { useState, useEffect } from 'react';
-import { Truck, Ambulance as AmbIcon, Building, Wrench } from 'lucide-react';
+import { Truck, Ambulance as AmbIcon, Building } from 'lucide-react';
 import { getAmbulances, getFireStations, getFireTrucks } from '../services/api';
 import type { Ambulance, FireStation, FireTruck } from '../types';
 

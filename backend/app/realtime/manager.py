@@ -1,9 +1,13 @@
-"""CrisisFlow WebSocket Manager — broadcasts real-time events to all connected clients."""
+"""
+CrisisFlow WebSocket Manager — broadcasts real-time events to all connected clients.
+"""
 import json
-import asyncio
+import logging
 from datetime import datetime, timezone
-from typing import List
+from typing import List, Optional
 from fastapi import WebSocket
+
+logger = logging.getLogger("crisisflow.realtime")
 
 
 class ConnectionManager:
@@ -20,11 +24,14 @@ class ConnectionManager:
         if websocket in self.active_connections:
             self.active_connections.remove(websocket)
 
-    async def broadcast(self, event_type: str, data: dict):
-        """Send an event to every connected client."""
+    async def broadcast(self, event_type: str, data: dict, entity_id: Optional[str] = None, zone: Optional[str] = None):
+        """Send an event to every connected client in standard envelope + data format."""
         message = json.dumps({
             "event_type": event_type,
             "data": data,
+            "entity_id": entity_id,
+            "zone": zone or "Central",
+            "source": "crisisflow-realtime",
             "timestamp": datetime.now(timezone.utc).isoformat(),
         })
         disconnected = []

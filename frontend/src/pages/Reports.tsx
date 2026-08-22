@@ -1,6 +1,5 @@
-/* ─── Reports Page ─── */
 import { useState, useEffect, useRef } from 'react';
-import { FileText, Printer, Download, Calendar, Clock, AlertTriangle } from 'lucide-react';
+import { FileText, Printer } from 'lucide-react';
 import { getIncidents, getAnalytics, getRecommendation } from '../services/api';
 import type { Incident, Analytics, Recommendation } from '../types';
 
@@ -9,7 +8,6 @@ export default function Reports() {
     const [analytics, setAnalytics] = useState<Analytics | null>(null);
     const [selectedInc, setSelectedInc] = useState<Incident | null>(null);
     const [rec, setRec] = useState<Recommendation | null>(null);
-    const [generating, setGenerating] = useState(false);
     const reportRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
@@ -18,10 +16,8 @@ export default function Reports() {
     }, []);
 
     const generateReport = async (inc: Incident) => {
-        setGenerating(true);
         setSelectedInc(inc);
         try { setRec(await getRecommendation(inc.id)); } catch { setRec(null); }
-        setGenerating(false);
     };
 
     const handlePrint = () => {
@@ -51,7 +47,6 @@ export default function Reports() {
         }
     };
 
-    const sevBadge = (s: string) => `<span class="badge ${s === 'Critical' ? 'critical' : 'high'}">${s}</span>`;
 
     return (
         <div className="space-y-4">

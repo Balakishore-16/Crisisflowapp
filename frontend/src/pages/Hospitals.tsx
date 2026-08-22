@@ -1,6 +1,5 @@
-/* ─── Hospitals Page ─── */
 import { useState, useEffect } from 'react';
-import { Building2, Heart, Activity, Thermometer } from 'lucide-react';
+import { Building2 } from 'lucide-react';
 import { getHospitals } from '../services/api';
 import type { Hospital } from '../types';
 

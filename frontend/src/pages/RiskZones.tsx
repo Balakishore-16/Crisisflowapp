@@ -1,6 +1,5 @@
-/* ─── Risk Zones Page ─── */
 import { useState, useEffect } from 'react';
-import { MapPin, AlertTriangle, Shield, TrendingUp } from 'lucide-react';
+import { MapPin, AlertTriangle, Shield } from 'lucide-react';
 import { MapContainer, TileLayer, Circle, Popup } from 'react-leaflet';
 import { getRiskZones } from '../services/api';
 import type { RiskZone } from '../types';

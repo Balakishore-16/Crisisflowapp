@@ -1,0 +1,51 @@
+{
+  "name": "CrisisETL",
+  "properties": {
+    "description": "Microsoft Fabric Data Pipeline orchestrating Bronze-to-Silver cleansing, Silver-to-Gold aggregation, and Semantic Model refresh.",
+    "activities": [
+      {
+        "name": "Run_Silver_Notebook",
+        "type": "FabricNotebook",
+        "dependsOn": [],
+        "typeProperties": {
+          "notebookId": "fabric/notebooks/01_bronze_to_silver.py",
+          "parameters": {
+            "environment": "production",
+            "batch_mode": "incremental"
+          }
+        }
+      },
+      {
+        "name": "Run_Gold_Notebook",
+        "type": "FabricNotebook",
+        "dependsOn": [
+          {
+            "activity": "Run_Silver_Notebook",
+            "dependencyConditions": ["Succeeded"]
+          }
+        ],
+        "typeProperties": {
+          "notebookId": "fabric/notebooks/02_silver_to_gold.py",
+          "parameters": {
+            "refresh_aggregates": true
+          }
+        }
+      },
+      {
+        "name": "Refresh_Semantic_Model",
+        "type": "PowerBIDatasetRefresh",
+        "dependsOn": [
+          {
+            "activity": "Run_Gold_Notebook",
+            "dependencyConditions": ["Succeeded"]
+          }
+        ],
+        "typeProperties": {
+          "datasetName": "CrisisModel",
+          "notifyOption": "MailOnFailure"
+        }
+      }
+    ],
+    "annotations": ["CrisisFlow", "FabricPipeline", "MedallionETL"]
+  }
+}

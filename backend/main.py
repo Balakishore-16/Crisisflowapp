@@ -3,10 +3,19 @@ CrisisFlow — Main FastAPI Application
 ══════════════════════════════════════
 AI-Powered Real-Time Emergency Response & Resource Optimization Platform
 """
+import sys
 import asyncio
 import logging
 from contextlib import asynccontextmanager
 from datetime import datetime, timezone
+
+# Ensure UTF-8 output encoding across Windows consoles
+if sys.platform == "win32":
+    try:
+        sys.stdout.reconfigure(encoding="utf-8")
+        sys.stderr.reconfigure(encoding="utf-8")
+    except Exception:
+        pass
 
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
@@ -16,7 +25,7 @@ load_dotenv()
 
 from app.database import init_db, SessionLocal
 from app.realtime.manager import ws_manager
-from app.api import incidents, resources, simulation, analytics, fabric_routes
+from app.api import incidents, resources, simulation, analytics, fabric_routes, decisions, alerts, external_routes
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("crisisflow")
@@ -40,7 +49,7 @@ async def background_simulation():
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Startup / shutdown."""
+    """Startup / shutdown lifecycle."""
     logger.info("🚨 CrisisFlow starting up...")
     init_db()
 
@@ -71,7 +80,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     title="CrisisFlow API",
-    description="AI-Powered Real-Time Emergency Response & Resource Optimization",
+    description="AI-Powered Real-Time Emergency Response & Resource Optimization Platform",
     version="1.0.0",
     lifespan=lifespan,
 )
@@ -88,21 +97,26 @@ app.add_middleware(
 # Register routers
 app.include_router(incidents.router)
 app.include_router(resources.router)
+app.include_router(decisions.router)
+app.include_router(alerts.router)
 app.include_router(simulation.router)
 app.include_router(analytics.router)
 app.include_router(fabric_routes.router)
+app.include_router(external_routes.router)
 
 
 @app.get("/api/health")
 def health():
     from app.services.fabric_service import fabric_service
     from app.services.ai_service import get_ai_status
+    fabric_stat = fabric_service.get_status()
     return {
         "status": "operational",
         "service": "CrisisFlow",
         "version": "1.0.0",
         "timestamp": datetime.now(timezone.utc).isoformat(),
-        "fabric": fabric_service.get_status()["overall"],
+        "fabric": fabric_stat["overall"],
+        "fabric_details": fabric_stat,
         "ai": get_ai_status(),
         "websocket_connections": len(ws_manager.active_connections),
     }

@@ -30,32 +30,33 @@ class LocalExplanationProvider(AIProvider):
     def explain_recommendation(self, incident: Incident, rec: Recommendation) -> str:
         parts = []
         parts.append(f"CrisisFlow Decision Engine analyzed {incident.incident_type} "
-                      f"at {incident.location} (Severity: {incident.severity}).")
+                      f"at {incident.location} (Severity: {incident.severity}, Zone: {incident.zone or 'Central'}).")
         parts.append("")
 
         if rec.fire_station_name:
-            parts.append(f"🚒 {rec.fire_station_name} was selected because it has the "
-                          f"lowest effective response time ({rec.eta_minutes} min) after "
-                          f"considering current traffic conditions and equipment availability.")
+            parts.append(f"🚒 Fire Unit: {rec.fire_station_name} selected for fire suppression/rescue capabilities.")
 
         if rec.ambulance_id:
-            parts.append(f"🚑 Ambulance {rec.ambulance_id} was selected based on proximity, "
-                          f"availability, and medical equipment match for this incident type.")
+            parts.append(f"🚑 Selected Ambulance: {rec.ambulance_id}")
 
         if rec.hospital_name:
-            parts.append(f"🏥 {rec.hospital_name} was recommended due to available "
-                          f"emergency capacity and specialized treatment capability "
-                          f"for {incident.incident_type.lower()} injuries.")
+            parts.append(f"🏥 Selected Hospital: {rec.hospital_name}")
+
+        parts.append(f"⏱️ ETA: {rec.eta_minutes} minutes")
+        parts.append(f"🎯 Confidence: {rec.confidence}%")
+        parts.append("")
 
         if rec.reasons:
-            parts.append("")
-            parts.append("Key factors in this decision:")
+            parts.append("Reason:")
             for r in rec.reasons:
-                parts.append(f"  ✓ {r}")
+                parts.append(f"  • {r}")
+            parts.append("")
 
-        parts.append("")
-        parts.append(f"Confidence: {rec.confidence}% — based on {len(rec.data_considered)} "
-                      f"data dimensions including {', '.join(rec.data_considered[:4])}.")
+        if rec.score_breakdown:
+            parts.append("Score Breakdown:")
+            for k, v in rec.score_breakdown.items():
+                k_clean = k.replace("_", " ").title()
+                parts.append(f"  • {k_clean}: {v}")
 
         return "\n".join(parts)
 
@@ -79,6 +80,10 @@ class LocalExplanationProvider(AIProvider):
         }
 
     def generate_briefing(self, incident: Incident, rec: Recommendation) -> str:
+        breakdown_str = ""
+        if rec.score_breakdown:
+            breakdown_str = "\nScore Breakdown:\n" + "\n".join(f"  - {k}: {v}" for k, v in rec.score_breakdown.items())
+
         return (
             f"COMMANDER BRIEFING — Incident {incident.id}\n"
             f"{'='*50}\n"
@@ -86,6 +91,7 @@ class LocalExplanationProvider(AIProvider):
             f"Location: {incident.location}"
             f"{f', Floor {incident.floor}' if incident.floor else ''}\n"
             f"Severity: {incident.severity}\n"
+            f"Zone: {incident.zone or 'Central'}\n"
             f"People at Risk: {incident.people_at_risk}\n"
             f"Spread Risk: {incident.spread_risk or 'N/A'}\n\n"
             f"RECOMMENDED RESPONSE:\n"
@@ -94,7 +100,8 @@ class LocalExplanationProvider(AIProvider):
             f"  Hospital: {rec.hospital_name or 'N/A'}\n"
             f"  Route: {rec.route or 'N/A'}\n"
             f"  ETA: {rec.eta_minutes} minutes\n"
-            f"  Confidence: {rec.confidence}%\n\n"
+            f"  Confidence: {rec.confidence}%\n"
+            f"{breakdown_str}\n\n"
             f"STATUS: Awaiting commander dispatch authorization."
         )
 
@@ -111,7 +118,6 @@ class AzureAIProvider(AIProvider):
     def explain_recommendation(self, incident: Incident, rec: Recommendation) -> str:
         if not self.available:
             return LocalExplanationProvider().explain_recommendation(incident, rec)
-        # TODO: Call Azure OpenAI with incident + rec context
         return LocalExplanationProvider().explain_recommendation(incident, rec)
 
     def classify_incident(self, incident: Incident) -> Dict[str, Any]:

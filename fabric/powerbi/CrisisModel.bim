@@ -1,0 +1,67 @@
+{
+  "name": "CrisisModel",
+  "compatibilityLevel": 1600,
+  "model": {
+    "culture": "en-US",
+    "dataSources": [
+      {
+        "type": "entity",
+        "name": "FabricLakehouse",
+        "connectionString": "Data Source=powerbi://api.powerbi.com/v1.0/myorg/CrisisFlowWorkspace;Initial Catalog=CrisisFlowLakehouse"
+      }
+    ],
+    "tables": [
+      {
+        "name": "gold_response_performance",
+        "columns": [
+          { "name": "report_date", "dataType": "dateTime", "sourceColumn": "report_date" },
+          { "name": "zone", "dataType": "string", "sourceColumn": "zone" },
+          { "name": "incident_type", "dataType": "string", "sourceColumn": "incident_type" },
+          { "name": "severity", "dataType": "string", "sourceColumn": "severity" },
+          { "name": "avg_response_time_min", "dataType": "double", "sourceColumn": "avg_response_time_min" },
+          { "name": "p50_response_time_min", "dataType": "double", "sourceColumn": "p50_response_time_min" },
+          { "name": "p90_response_time_min", "dataType": "double", "sourceColumn": "p90_response_time_min" },
+          { "name": "total_dispatches", "dataType": "int64", "sourceColumn": "total_dispatches" },
+          { "name": "sla_compliance_pct", "dataType": "double", "sourceColumn": "sla_compliance_pct" }
+        ],
+        "measures": [
+          { "name": "Avg Response Time", "expression": "AVERAGE(gold_response_performance[avg_response_time_min])" },
+          { "name": "P50 Response Time", "expression": "MEDIAN(gold_response_performance[p50_response_time_min])" },
+          { "name": "P90 Response Time", "expression": "PERCENTILE.INC(gold_response_performance[p90_response_time_min], 0.90)" },
+          { "name": "SLA Compliance Rate", "expression": "AVERAGE(gold_response_performance[sla_compliance_pct])" }
+        ]
+      },
+      {
+        "name": "gold_zone_demand",
+        "columns": [
+          { "name": "report_date", "dataType": "dateTime", "sourceColumn": "report_date" },
+          { "name": "hour_of_day", "dataType": "int64", "sourceColumn": "hour_of_day" },
+          { "name": "zone", "dataType": "string", "sourceColumn": "zone" },
+          { "name": "incident_type", "dataType": "string", "sourceColumn": "incident_type" },
+          { "name": "incident_count", "dataType": "int64", "sourceColumn": "incident_count" },
+          { "name": "critical_incidents", "dataType": "int64", "sourceColumn": "critical_incidents" },
+          { "name": "total_people_at_risk", "dataType": "int64", "sourceColumn": "total_people_at_risk" }
+        ],
+        "measures": [
+          { "name": "Total Incidents", "expression": "SUM(gold_zone_demand[incident_count])" },
+          { "name": "Critical Incidents", "expression": "SUM(gold_zone_demand[critical_incidents])" }
+        ]
+      },
+      {
+        "name": "gold_decision_quality",
+        "columns": [
+          { "name": "report_date", "dataType": "dateTime", "sourceColumn": "report_date" },
+          { "name": "algorithm", "dataType": "string", "sourceColumn": "algorithm" },
+          { "name": "decision_count", "dataType": "int64", "sourceColumn": "decision_count" },
+          { "name": "avg_optimizer_confidence_pct", "dataType": "double", "sourceColumn": "avg_optimizer_confidence_pct" },
+          { "name": "human_override_rate_pct", "dataType": "double", "sourceColumn": "human_override_rate_pct" },
+          { "name": "predicted_eta_avg", "dataType": "double", "sourceColumn": "predicted_eta_avg" }
+        ],
+        "measures": [
+          { "name": "Optimizer Confidence", "expression": "AVERAGE(gold_decision_quality[avg_optimizer_confidence_pct])" },
+          { "name": "Human Override Rate", "expression": "AVERAGE(gold_decision_quality[human_override_rate_pct])" }
+        ]
+      }
+    ]
+  }
+}
