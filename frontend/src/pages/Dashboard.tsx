@@ -18,6 +18,14 @@ import type { Analytics, Incident, Recommendation, ActivityLog, WSEvent } from '
 function MapController() {
     const map = useMap();
     useEffect(() => {
+        // Auto-locate GPS on page load so it is not a fixed map
+        if ('geolocation' in navigator) {
+            navigator.geolocation.getCurrentPosition(
+                (pos) => map.setView([pos.coords.latitude, pos.coords.longitude], 13),
+                () => console.warn('GPS denied or unavailable')
+            );
+        }
+
         const handler = (e: any) => map.flyTo([e.detail.lat, e.detail.lng], 14);
         window.addEventListener('map-fly-to', handler);
         return () => window.removeEventListener('map-fly-to', handler);
@@ -244,8 +252,8 @@ export default function Dashboard() {
                         zoomControl={false}
                     >
                         <TileLayer
-                            url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png"
-                            attribution='&copy; <a href="https://carto.com/">CARTO</a>'
+                            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                            attribution='&copy; OpenStreetMap contributors'
                         />
                         <MapController />
                         {/* Incidents */}

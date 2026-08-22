@@ -1,9 +1,22 @@
 /* ─── Risk Zones Page ─── */
 import { useState, useEffect } from 'react';
 import { MapPin, AlertTriangle, Shield, TrendingUp } from 'lucide-react';
-import { MapContainer, TileLayer, Circle, Popup } from 'react-leaflet';
+import { MapContainer, TileLayer, Circle, Popup, useMap } from 'react-leaflet';
 import { getRiskZones } from '../services/api';
 import type { RiskZone } from '../types';
+
+function MapController() {
+    const map = useMap();
+    useEffect(() => {
+        if ('geolocation' in navigator) {
+            navigator.geolocation.getCurrentPosition(
+                (pos) => map.setView([pos.coords.latitude, pos.coords.longitude], 12),
+                () => { }
+            );
+        }
+    }, [map]);
+    return null;
+}
 
 const riskColor = (level: string) =>
     level === 'Critical' ? '#ef4444' : level === 'High' ? '#f97316'
@@ -57,8 +70,9 @@ export default function RiskZones() {
                 </div>
                 <MapContainer center={[17.420, 78.450]} zoom={12}
                     style={{ height: 'calc(100% - 44px)', width: '100%' }} zoomControl={false}>
-                    <TileLayer url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
-                        attribution='&copy; CARTO' />
+                    <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                        attribution='&copy; OpenStreetMap contributors' />
+                    <MapController />
                     {zones.map(z => (
                         <Circle key={z.id} center={[z.latitude, z.longitude]} radius={z.radius * 1000}
                             pathOptions={{ color: riskColor(z.risk_level), fillOpacity: 0.15, weight: 2 }}>

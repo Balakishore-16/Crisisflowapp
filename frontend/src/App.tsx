@@ -7,11 +7,15 @@ import Hospitals from './pages/Hospitals';
 import RiskZones from './pages/RiskZones';
 import AnalyticsPage from './pages/AnalyticsPage';
 import Reports from './pages/Reports';
+import UserPortal from './pages/UserPortal';
+import DriverPortal from './pages/DriverPortal';
 
 export default function App() {
   return (
     <BrowserRouter>
       <Routes>
+        <Route path="/user" element={<UserPortal />} />
+        <Route path="/driver" element={<DriverPortal />} />
         <Route element={<Layout />}>
           <Route path="/" element={<Dashboard />} />
           <Route path="/incidents" element={<Incidents />} />
