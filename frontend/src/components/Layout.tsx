@@ -123,7 +123,7 @@ export default function Layout() {
                         </div>
 
                         <div className="text-xs text-slate-400 font-mono">
-                            {time.toLocaleTimeString()}
+                            {time.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', second: '2-digit', hour12: true })}
                         </div>
                     </div>
                 </header>
