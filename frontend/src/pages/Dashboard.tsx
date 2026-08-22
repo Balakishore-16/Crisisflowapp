@@ -33,6 +33,13 @@ function MapController() {
     return null;
 }
 
+const blueDotIcon = L.divIcon({
+    className: '',
+    html: `<div style="width: 18px; height: 18px; background: #3b82f6; border-radius: 50%; border: 3px solid white; box-shadow: 0 0 15px rgba(59,130,246,0.8); animation: pulse 2s infinite;"></div>`,
+    iconSize: [18, 18],
+    iconAnchor: [9, 9]
+});
+
 // Custom Leaflet icons
 const makeIcon = (color: string, emoji: string) =>
     L.divIcon({
@@ -87,6 +94,7 @@ export default function Dashboard() {
     const [simulating, setSimulating] = useState('');
     const [dispatching, setDispatching] = useState(false);
     const [adminCity, setAdminCity] = useState<string>('Locating Region...');
+    const [adminLoc, setAdminLoc] = useState<[number, number] | null>(null);
 
     const loadData = useCallback(async () => {
         try {
@@ -111,8 +119,11 @@ export default function Dashboard() {
         if ('geolocation' in navigator) {
             navigator.geolocation.getCurrentPosition(
                 async (pos) => {
+                    const lat = pos.coords.latitude;
+                    const lng = pos.coords.longitude;
+                    setAdminLoc([lat, lng]);
                     try {
-                        const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${pos.coords.latitude}&lon=${pos.coords.longitude}`);
+                        const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`);
                         const data = await res.json();
                         setAdminCity(data.address?.city || data.address?.town || data.address?.county || 'Active Region');
                     } catch { }
@@ -269,7 +280,6 @@ export default function Dashboard() {
                         center={[17.420, 78.450]}
                         zoom={12}
                         style={{ height: 'calc(100% - 44px)', width: '100%', zIndex: 10 }}
-                        zoomControl={false}
                         scrollWheelZoom={false}
                     >
                         <TileLayer
@@ -277,6 +287,14 @@ export default function Dashboard() {
                             attribution='&copy; Google Maps'
                         />
                         <MapController />
+
+                        {/* Admin "You Are Here" Dot */}
+                        {adminLoc && (
+                            <Marker position={adminLoc} icon={blueDotIcon}>
+                                <Popup><div className="text-xs font-bold text-slate-800">Your Operational Location</div></Popup>
+                            </Marker>
+                        )}
+
                         {/* Incidents */}
                         {incidents.filter(i => i.status !== 'Resolved').map(inc => (
                             <Marker key={inc.id} position={[inc.latitude, inc.longitude]}
