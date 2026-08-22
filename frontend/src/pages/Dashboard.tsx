@@ -272,8 +272,8 @@ export default function Dashboard() {
                         zoomControl={false}
                     >
                         <TileLayer
-                            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                            attribution='&copy; OpenStreetMap contributors'
+                            url="https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}"
+                            attribution='&copy; Google Maps'
                         />
                         <MapController />
                         {/* Incidents */}

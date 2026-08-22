@@ -70,8 +70,8 @@ export default function RiskZones() {
                 </div>
                 <MapContainer center={[17.420, 78.450]} zoom={12}
                     style={{ height: 'calc(100% - 44px)', width: '100%' }} zoomControl={false}>
-                    <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                        attribution='&copy; OpenStreetMap contributors' />
+                    <TileLayer url="https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}"
+                        attribution='&copy; Google Maps' />
                     <MapController />
                     {zones.map(z => (
                         <Circle key={z.id} center={[z.latitude, z.longitude]} radius={z.radius * 1000}
