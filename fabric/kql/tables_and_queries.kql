@@ -1,0 +1,143 @@
+// ═══════════════════════════════════════════════════════════
+// CrisisFlow — KQL Queries for Fabric Eventhouse
+// ═══════════════════════════════════════════════════════════
+// Deploy these tables and queries in your Fabric Eventhouse
+// KQL Database to power Real-Time Intelligence dashboards.
+
+// ─── TABLE CREATION ───
+
+.create table Incidents (
+    event_id: string,
+    incident_id: string,
+    incident_type: string,
+    location: string,
+    latitude: real,
+    longitude: real,
+    severity: string,
+    people_at_risk: int,
+    status: string,
+    spread_risk: string,
+    source: string,
+    timestamp: datetime
+)
+
+.create table ResourceEvents (
+    event_id: string,
+    resource_type: string,
+    resource_id: string,
+    status: string,
+    location: string,
+    latitude: real,
+    longitude: real,
+    incident_id: string,
+    source: string,
+    timestamp: datetime
+)
+
+.create table DispatchEvents (
+    event_id: string,
+    dispatch_id: string,
+    incident_id: string,
+    fire_station: string,
+    ambulance: string,
+    hospital: string,
+    route: string,
+    eta_minutes: real,
+    confidence: real,
+    source: string,
+    timestamp: datetime
+)
+
+.create table HospitalEvents (
+    event_id: string,
+    hospital_id: string,
+    hospital_name: string,
+    occupancy: real,
+    emergency_capacity: int,
+    icu_beds: int,
+    trauma_beds: int,
+    burn_capacity: int,
+    status: string,
+    source: string,
+    timestamp: datetime
+)
+
+.create table TrafficEvents (
+    event_id: string,
+    route_name: string,
+    congestion_level: real,
+    estimated_delay_minutes: real,
+    source: string,
+    timestamp: datetime
+)
+
+.create table RiskEvents (
+    event_id: string,
+    zone_id: string,
+    zone_name: string,
+    risk_level: string,
+    risk_score: int,
+    active_incidents: int,
+    source: string,
+    timestamp: datetime
+)
+
+
+// ═══════════════════════════════════════════════════════════
+// OPERATIONAL QUERIES
+// ═══════════════════════════════════════════════════════════
+
+// Active incidents (last 24 hours)
+Incidents
+| where timestamp > ago(24h)
+| where status !in ("Resolved", "Cancelled")
+| summarize count() by severity
+| order by count_ desc
+
+// Critical incidents
+Incidents
+| where severity == "Critical"
+| where status !in ("Resolved", "Cancelled")
+| project incident_id, incident_type, location, people_at_risk, timestamp
+| order by timestamp desc
+
+// Average response time
+DispatchEvents
+| summarize avg(eta_minutes) by bin(timestamp, 1h)
+| order by timestamp desc
+
+// Resource availability
+ResourceEvents
+| summarize arg_max(timestamp, *) by resource_id
+| where status == "Available"
+| summarize count() by resource_type
+
+// Hospital occupancy trend
+HospitalEvents
+| summarize arg_max(timestamp, *) by hospital_id
+| project hospital_name, occupancy, status
+| order by occupancy desc
+
+// Incident density by type
+Incidents
+| where timestamp > ago(7d)
+| summarize count() by incident_type
+| order by count_ desc
+
+// Risk zone analysis
+RiskEvents
+| summarize arg_max(timestamp, *) by zone_id
+| where risk_level in ("High", "Critical")
+| project zone_name, risk_level, risk_score, active_incidents
+
+// Recent events timeline
+Incidents
+| union ResourceEvents, DispatchEvents
+| order by timestamp desc
+| take 50
+
+// Geographic incident distribution
+Incidents
+| where timestamp > ago(7d)
+| project incident_type, latitude, longitude, severity
+| where isnotempty(latitude)

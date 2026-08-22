@@ -1,0 +1,250 @@
+@import "tailwindcss";
+@import "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";
+
+@theme {
+  --font-sans: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --color-navy-950: #f8fafc;
+  /* App Background - lightest gray */
+  --color-navy-900: #ffffff;
+  /* Sidebar / Leaflet Background - solid white */
+  --color-navy-800: #ffffff;
+  /* Popup / Hover blocks */
+  --color-navy-700: #f1f5f9;
+  --color-navy-600: #e2e8f0;
+  --color-navy-500: #cbd5e1;
+  --color-crisis-red: #ea580c;
+  --color-crisis-orange: #f97316;
+  --color-crisis-green: #16a34a;
+  --color-crisis-blue: #0284c7;
+  --color-crisis-purple: #9333ea;
+  --color-crisis-cyan: #0d9488;
+  --color-crisis-yellow: #ca8a04;
+}
+
+html,
+body,
+#root {
+  min-height: 100vh;
+  background: var(--color-navy-950);
+  color: #1e293b;
+  /* Dark slate text for everything */
+}
+
+/* Force specific text utility overrides for tailwind classes hardcoded in TSX */
+.text-white {
+  color: #0f172a !important;
+}
+
+.text-slate-200 {
+  color: #1e293b !important;
+}
+
+.text-slate-300 {
+  color: #334155 !important;
+}
+
+.text-slate-400 {
+  color: #475569 !important;
+}
+
+.text-slate-500 {
+  color: #64748b !important;
+}
+
+.border-white\/5 {
+  border-color: rgba(0, 0, 0, 0.05) !important;
+}
+
+.border-white\/10 {
+  border-color: rgba(0, 0, 0, 0.1) !important;
+}
+
+.bg-white\/2 {
+  background-color: rgba(0, 0, 0, 0.02) !important;
+}
+
+.hover\:bg-white\/2:hover {
+  background-color: rgba(0, 0, 0, 0.04) !important;
+}
+
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-navy-900);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-navy-600);
+  border-radius: 3px;
+}
+
+/* Card UI */
+.card {
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: 12px;
+  backdrop-filter: blur(12px);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.02);
+}
+
+.card-hover:hover {
+  border-color: rgba(0, 0, 0, 0.12);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.04);
+}
+
+/* Pulse */
+@keyframes live-pulse {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.4;
+  }
+}
+
+.live-pulse {
+  animation: live-pulse 2s ease-in-out infinite;
+}
+
+/* Status colors */
+.status-critical {
+  color: var(--color-crisis-red);
+}
+
+.status-high {
+  color: var(--color-crisis-orange);
+}
+
+.status-medium {
+  color: var(--color-crisis-yellow);
+}
+
+.status-low {
+  color: var(--color-crisis-blue);
+}
+
+.status-available {
+  color: var(--color-crisis-green);
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 10px;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.badge-critical {
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.badge-high {
+  background: rgba(249, 115, 22, 0.15);
+  color: #f97316;
+  border: 1px solid rgba(249, 115, 22, 0.3);
+}
+
+.badge-medium {
+  background: rgba(234, 179, 8, 0.15);
+  color: #eab308;
+  border: 1px solid rgba(234, 179, 8, 0.3);
+}
+
+.badge-low {
+  background: rgba(59, 130, 246, 0.15);
+  color: #3b82f6;
+  border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+.badge-available {
+  background: rgba(34, 197, 94, 0.15);
+  color: #22c55e;
+  border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+.badge-dispatched {
+  background: rgba(168, 85, 247, 0.15);
+  color: #a855f7;
+  border: 1px solid rgba(168, 85, 247, 0.3);
+}
+
+.badge-en-route {
+  background: rgba(6, 182, 212, 0.15);
+  color: #06b6d4;
+  border: 1px solid rgba(6, 182, 212, 0.3);
+}
+
+/* Leaflet overrides */
+.leaflet-container {
+  background: var(--color-navy-900) !important;
+  border-radius: 12px;
+}
+
+.leaflet-popup-content-wrapper {
+  background: var(--color-navy-800) !important;
+  color: #1e293b !important;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.leaflet-popup-tip {
+  background: var(--color-navy-800) !important;
+}
+
+/* Button primary */
+.btn-primary {
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  color: white;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.875rem;
+  transition: all 0.2s;
+  cursor: pointer;
+  border: none;
+}
+
+.btn-primary:hover {
+  box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
+  transform: translateY(-1px);
+}
+
+.btn-danger {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  color: white;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.875rem;
+  transition: all 0.2s;
+  cursor: pointer;
+  border: none;
+}
+
+.btn-danger:hover {
+  box-shadow: 0 0 20px rgba(239, 68, 68, 0.3);
+  transform: translateY(-1px);
+}
+
+/* Recharts light */
+.recharts-cartesian-grid-horizontal line,
+.recharts-cartesian-grid-vertical line {
+  stroke: rgba(0, 0, 0, 0.05);
+}
+
+.recharts-text {
+  fill: #64748b !important;
+  font-size: 11px;
+}
